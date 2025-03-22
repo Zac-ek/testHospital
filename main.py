@@ -1,7 +1,8 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect,  HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from src.db.db import db
+from src.db.db_mysql import databaseMysql
 from src.routes.usuarios_routes import usuario_routes
+from src.routes.notas_medicas_routes import notasMedicasRoutes
 from typing import List
 import jwt
 import os
@@ -56,12 +57,13 @@ class HospitalBackend:
 
     def _configure_database(self):
         """Configura la base de datos y crea las tablas"""
-        Base = db.get_base()
-        Base.metadata.create_all(bind=db.get_engine())
+        Base = databaseMysql.get_base()
+        Base.metadata.create_all(bind=databaseMysql.get_engine())
 
     def _include_routes(self):
         """Incluye las rutas en la aplicación FastAPI"""
         self.app.include_router(usuario_routes)
+        self.app.include_router(notasMedicasRoutes)
 
     def _include_websocket(self):
         """Incluye el WebSocket en la aplicación FastAPI."""

@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import Column, CHAR, String, Enum, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
-from src.db.db import db
+from src.db.db_mysql import databaseMysql
 import enum
 
 class EstatusEnum(str, enum.Enum):
@@ -10,7 +10,7 @@ class EstatusEnum(str, enum.Enum):
     Bloqueado = "Bloqueado"
     Suspendido = "Suspendido"
 
-class Usuario(db.get_base()):
+class Usuario(databaseMysql.get_base()):
     __tablename__ = "tbb_usuarios"
 
     id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))

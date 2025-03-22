@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from src.helpers.jwt_config import jwt_config
 from src.dao.usuarios_dao import usuariosDAO
-from src.db.db import db
+from src.db.db_mysql import databaseMysql
 
 class AuthMiddleware(HTTPBearer):
     """Middleware para validar tokens JWT en las rutas protegidas."""
@@ -16,7 +16,7 @@ class AuthMiddleware(HTTPBearer):
             cls._instance = super(AuthMiddleware, cls).__new__(cls)
         return cls._instance
 
-    async def __call__(self, request: Request, db: Session = Depends(db.get_db)):
+    async def __call__(self, request: Request, db: Session = Depends(databaseMysql.get_db)):
         """Verifica el JWT y devuelve el usuario autenticado."""
         autorizacion = await super().__call__(request)  # Obtiene el token Bearer
         datos_token = jwt_config.valida_token(autorizacion.credentials)  # Valida el token

@@ -7,13 +7,13 @@ from dotenv import load_dotenv
 # Cargar las variables de entorno desde el archivo .env
 load_dotenv()
 
-class Database:
+class DatabaseMySQL:
     _instance = None  # Variable de clase para la instancia única
 
     def __new__(cls):
         """Implementa el patrón Singleton para asegurar una única instancia."""
         if cls._instance is None:
-            cls._instance = super(Database, cls).__new__(cls)
+            cls._instance = super(DatabaseMySQL, cls).__new__(cls)
             cls._instance._initialize()
         return cls._instance
 
@@ -50,4 +50,4 @@ class Database:
             session.close()
 
 # Crear la instancia única de la base de datos
-db = Database()
+databaseMysql = DatabaseMySQL()

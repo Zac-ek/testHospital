@@ -1,0 +1,5 @@
+TODO: Crear las rutas de notas_medicas en mongo db
+TODO: Crear el archivo .log para los movimientos de la bd de mongo como tipo bitacora
+TODO: Implementar en el login que almacene la variable local en la bitacora con el nombre del usuario que hizo cambios en la bd
+TODO: Ver como meter los procedimientos almacenados usando python
+TODO: Implementar los metodos del edgar para llamar los procedimientos almacenados
