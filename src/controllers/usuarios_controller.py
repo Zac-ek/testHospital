@@ -26,14 +26,19 @@ class UsuariosController:
 
     def read_credentials(self, usuario: UsuarioLogin, db: Session = Depends(databaseMysql.get_db)):
         """Valida credenciales y genera un token de autenticación."""
-        db_credentials = usuariosDAO.get_user_by_username(db, username=usuario.nombre_usuario)
-        if db_credentials is None or db_credentials.contrasena != usuario.contrasena:
+        db_credentials = usuariosDAO.get_user_by_credentials(
+            db,
+            username=usuario.nombre_usuario,
+            password=usuario.contrasena,
+        )
+        if db_credentials is None:
             return JSONResponse(content={'mensaje': 'Acceso denegado'}, status_code=404)
 
-        token: str = jwt_config.solicita_token({"nombre_usuario": usuario.nombre_usuario})
+        # Se genera el token y se retorna en la respuesta
+        token: str = jwt_config.solicita_token(usuario.dict())
         return JSONResponse(status_code=200, content={"token": token})
     
-    async def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(databaseMysql.get_db)):
+    def read_users(self, skip: int = 0, limit: int = 10, db: Session = Depends(databaseMysql.get_db)):
         db_users = usuariosDAO.get_users(db=db, skip=skip, limit=limit)
         return db_users
 

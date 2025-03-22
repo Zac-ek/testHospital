@@ -31,6 +31,7 @@ class UsuariosDAO:
             nombre_usuario=user.nombre_usuario,
             correo_electronico=user.correo_electronico,
             contrasena=user.contrasena,
+            numero_telefonico_movil=user.numero_telefonico_movil,
             estatus=user.estatus,
         )
         db.add(db_user)

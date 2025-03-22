@@ -10,6 +10,7 @@ class UsuarioBase(BaseModel):
     nombre_usuario: str
     correo_electronico: EmailStr
     contrasena: str
+    numero_telefonico_movil: str
     estatus: Optional[str] = "Activo"
 
     @field_validator("persona_id")
@@ -38,8 +39,20 @@ class UsuarioBase(BaseModel):
     @field_validator("contrasena")
     @classmethod
     def validar_contrasena(cls, value):
-        if not re.match(r"^(?=.*\d)(?=.*[A-Z]).{8,30}$", value):
+        if not re.match(r"^(?=.*\d)(?=.*).{8,30}$", value):
             raise ValueError("La contraseña debe contener al menos un dígito, una mayúscula y tener entre 8 y 30 caracteres.")
+        return value
+    
+    @field_validator("numero_telefonico_movil")
+    @classmethod
+    def validar_numero_telefonico_movil(cls, value):
+        value = value.strip()
+        if not value:
+            raise ValueError("El campo 'numero_telefonico_movil' no puede estar vacío.")
+        
+        patron = re.compile(r"^\+\d{1,3} \d{3} \d{3} \d{4}$")
+        if not patron.match(value):
+            raise ValueError("El 'numero_telefonico_movil' debe seguir el formato: '+52 XXX XXX XXXX'.")
         return value
 
     @field_validator("estatus")
@@ -58,6 +71,7 @@ class UsuarioUpdate(BaseModel):
     nombre_usuario: Optional[str] = None
     correo_electronico: Optional[EmailStr] = None
     contrasena: Optional[str] = None
+    numero_telefonico_movil: Optional[str] = None
     estatus: Optional[str] = None
 
 

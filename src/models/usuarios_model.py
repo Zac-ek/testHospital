@@ -18,6 +18,7 @@ class Usuario(databaseMysql.get_base()):
     nombre_usuario = Column(String(40), unique=True, nullable=False)
     correo_electronico = Column(String(100), unique=True, nullable=False)
     contrasena = Column(String(40), nullable=False)
+    numero_telefonico_movil = Column(CHAR(19), unique=True, nullable=False)
     estatus = Column(Enum(EstatusEnum), nullable=True, default=EstatusEnum.Activo)
     fecha_registro = Column(DateTime, default=func.now(), nullable=False)
     fecha_actualizacion = Column(DateTime, onupdate=func.now())
