@@ -98,8 +98,6 @@ class UsuariosController:
             } if personal_medico else None
         }
 
-        print(response_data)
-
         return JSONResponse(status_code=200, content=response_data)
 
     

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, CHAR, String, Enum, DateTime, ForeignKey, func
+from sqlalchemy import Column, CHAR, String, Enum, DateTime, ForeignKey, func, text
 from sqlalchemy.orm import relationship
 from src.db.db_mysql import databaseMysql
 import enum
@@ -20,8 +20,8 @@ class Usuario(databaseMysql.get_base()):
     contrasena = Column(String(40), nullable=False)
     numero_telefonico_movil = Column(CHAR(19), unique=True, nullable=False)
     estatus = Column(Enum(EstatusEnum), nullable=True, server_default=EstatusEnum.Activo)
-    fecha_registro = Column(DateTime, server_default=func.text("CURRENT_TIMESTAMP"), nullable=False)
-    fecha_actualizacion = Column(DateTime, server_onupdate=func.text("CURRENT_TIMESTAMP"))
+    fecha_registro = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"), nullable=False)
+    fecha_actualizacion = Column(DateTime, server_onupdate=text("CURRENT_TIMESTAMP"))
     
     persona = relationship('Persona', back_populates='usuario')
 
