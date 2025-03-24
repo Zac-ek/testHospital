@@ -17,7 +17,7 @@ class NotasMedicasRoutes:
     def initialize_routes(self):
         """Registra los endpoints en el router."""
         self.router.post("/", response_model=dict)(notasMedicasController.crear_nota)
-        self.router.get("/multiple", response_model=list)(notasMedicasController.agrupadas_por_diagnostico)
+        self.router.get("/multiple", response_model=list)(notasMedicasController.obtener_agrupacion_multiple)
         self.router.get("/{nota_id}", response_model=dict)(notasMedicasController.obtener_nota)
         self.router.get("/", response_model=list)(notasMedicasController.obtener_todas)
         self.router.put("/{nota_id}", response_model=dict)(notasMedicasController.actualizar_nota)

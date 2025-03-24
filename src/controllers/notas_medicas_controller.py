@@ -53,13 +53,10 @@ class NotasMedicasController:
             raise HTTPException(status_code=404, detail="Nota no encontrada")
         return {"message": "Nota eliminada"}
     
-    def agrupadas_por_diagnostico(self):
-        """Obtiene las notas médicas agrupadas por diagnóstico y fecha."""
-        try:
-            agrupadas = notasMedicasDAO.agrupacion_por_diagnostico_y_fecha()
-            return agrupadas
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error al obtener notas agrupadas: {str(e)}")
+    def obtener_agrupacion_multiple(self):
+        """Obtiene datos agrupados por diagnóstico y fecha para visualizaciones."""
+        datos = notasMedicasDAO.agrupacion_por_diagnostico_y_fecha()
+        return datos
 
 
 # Instancia única del controlador

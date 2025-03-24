@@ -70,7 +70,31 @@ class NotasMedicasDAO:
             }}
         ]
 
-        return list(self.collection.aggregate(pipeline))
+        resultados = list(self.collection.aggregate(pipeline))
+
+        agrupado = {}
+        for item in resultados:
+            diagnostico = item["_id"]["diagnostico"]
+            fecha = datetime(
+                item["_id"]["year"],
+                item["_id"]["month"],
+                item["_id"]["day"]
+            ).isoformat() + "Z"  # ISO 8601 con Zulu time
+
+            if diagnostico not in agrupado:
+                agrupado[diagnostico] = []
+
+            agrupado[diagnostico].append({
+                "date": fecha,
+                "value": item["total"]
+            })
+
+    # Convertimos el diccionario a una lista con la estructura esperada
+        return [
+            {"diagnostico": key, "data": value}
+            for key, value in agrupado.items()
+        ]
+
 
 
 # Instancia única del DAO
