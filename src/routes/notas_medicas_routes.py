@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from src.controllers.notas_medicas_controller import notasMedicasController
-from src.schemas.notas_medicas_schemas import NotaMedicaModel
+from src.schemas.notas_medicas_schemas import NotaMedicaCreate, NotaMedicaUpdate, NotaMedicaResponse
 
 class NotasMedicasRoutes:
     """Clase que maneja las rutas de notas médicas con un patrón Singleton."""
