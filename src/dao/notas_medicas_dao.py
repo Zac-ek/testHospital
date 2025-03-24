@@ -41,5 +41,37 @@ class NotasMedicasDAO:
         resultado = self.collection.delete_one({"_id": ObjectId(nota_id)})
         return resultado.deleted_count > 0  # True si se eliminó algo
 
+
+    def agrupacion_por_diagnostico_y_fecha(self):
+        diagnosticos_permitidos = [
+            "Neumonía",
+            "Colitis ulcerativa",
+            "Migraña crónica",
+            "Otitis media",
+            "Infección de vías respiratorias superiores"
+        ]
+
+        pipeline = [
+            {"$match": {"diagnostico": {"$in": diagnosticos_permitidos}}},
+            {"$group": {
+                "_id": {
+                    "diagnostico": "$diagnostico",
+                    "year": {"$year": "$fechaNota"},
+                    "month": {"$month": "$fechaNota"},
+                    "day": {"$dayOfMonth": "$fechaNota"},
+                },
+                "total": {"$sum": 1}
+            }},
+            {"$sort": {
+                "_id.diagnostico": 1,
+                "_id.year": 1,
+                "_id.month": 1,
+                "_id.day": 1
+            }}
+        ]
+
+        return list(self.collection.aggregate(pipeline))
+
+
 # Instancia única del DAO
 notasMedicasDAO = NotasMedicasDAO()
