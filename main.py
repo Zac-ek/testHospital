@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.db.db_mysql import databaseMysql
 from src.routes.usuarios_routes import usuario_routes
 from src.routes.notas_medicas_routes import notasMedicasRoutes
+from src.routes.citas_routes import citas_routes
 from typing import List
 import jwt
 import os
@@ -64,6 +65,7 @@ class HospitalBackend:
         """Incluye las rutas en la aplicación FastAPI"""
         self.app.include_router(usuario_routes)
         self.app.include_router(notasMedicasRoutes)
+        self.app.include_router(citas_routes)
 
     def _include_websocket(self):
         """Incluye el WebSocket en la aplicación FastAPI."""

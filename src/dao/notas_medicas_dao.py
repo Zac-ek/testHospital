@@ -1,6 +1,6 @@
 from bson import ObjectId
 from src.db.db_mongo import mongodb_instance
-from src.schemas.notas_medicas_schemas import NotaMedicaModel
+from src.schemas.notas_medicas_schemas import NotaMedicaCreate, NotaMedicaUpdate
 from datetime import datetime, timezone
 
 class NotasMedicasDAO:

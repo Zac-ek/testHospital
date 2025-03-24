@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from bson import ObjectId
 from src.dao.notas_medicas_dao import notasMedicasDAO
-from src.schemas.notas_medicas_schemas import NotaMedicaModel
+from src.schemas.notas_medicas_schemas import NotaMedicaCreate, NotaMedicaUpdate
 
 class NotasMedicasController:
     """Controlador de notas médicas (Singleton)."""
@@ -14,7 +14,7 @@ class NotasMedicasController:
             cls._instance = super(NotasMedicasController, cls).__new__(cls)
         return cls._instance
 
-    def crear_nota(self, nota: NotaMedicaModel):
+    def crear_nota(self, nota: NotaMedicaCreate):
         """Crea una nueva nota médica."""
         nota_dict = nota.dict(by_alias=True)
         nota_id = notasMedicasDAO.crear_nota(nota_dict)
