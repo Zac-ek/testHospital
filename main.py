@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.db.db_mysql import databaseMysql
 from src.routes.usuarios_routes import usuario_routes
 from src.routes.notas_medicas_routes import notasMedicasRoutes
+from src.routes.graficas_routes import graficas_routes
 from typing import List
 import jwt
 import os
@@ -30,11 +31,11 @@ class HospitalBackend:
             description="Backend del hospital",
         )
 
+        # Lista de clientes conectados para manejar múltiples conexiones WebSocket
+        self.clients: dict[str, WebSocket] = {}  # Cambiado a un diccionario
+        
         # Configuración de CORS
         self._configure_cors()
-
-        # Base de datos y creación de tablas
-        self._configure_database()
 
         # Inclusión de rutas
         self._include_routes()
@@ -42,8 +43,8 @@ class HospitalBackend:
         # Incluir el WebSocket
         self._include_websocket()
 
-        # Lista de clientes conectados para manejar múltiples conexiones WebSocket
-        self.clients: dict[str, WebSocket] = {}  # Cambiado a un diccionario
+        # Base de datos y creación de tablas
+        self._configure_database()
 
     def _configure_cors(self):
         """Configura las opciones CORS para permitir peticiones desde Angular"""
@@ -64,6 +65,7 @@ class HospitalBackend:
         """Incluye las rutas en la aplicación FastAPI"""
         self.app.include_router(usuario_routes)
         self.app.include_router(notasMedicasRoutes)
+        self.app.include_router(graficas_routes)
 
     def _include_websocket(self):
         """Incluye el WebSocket en la aplicación FastAPI."""

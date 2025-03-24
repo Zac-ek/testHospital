@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from src.models.usuarios_model import Usuario
+from src.models.index_models import *
 from src.schemas.usuarios_schemas import UsuarioCreate, UsuarioUpdate
 
 class UsuariosDAO:
