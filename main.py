@@ -105,7 +105,10 @@ class HospitalBackend:
                 self.clients[client_id] = websocket
                 await websocket.accept()
                 db: Session = next(databaseMysql.get_db())
-                grupo_sanguineo = grupos_sanguineos_dao.obtener_todos(db)
+                try:
+                    grupo_sanguineo = grupos_sanguineos_dao.obtener_todos(db)
+                finally:
+                    db.close()  # Cerrar la sesión después de usarla
                 print(client_id)
                 print(grupo_sanguineo)
                 print
@@ -131,11 +134,13 @@ class HospitalBackend:
     async def monitor_eventos_personas(self):
         """Monitorea la tabla eventos_personas y envía datos actualizados por WebSocket."""
         while True:
-            await asyncio.sleep(0.5)  # Intervalo de consulta de 0.5 segundos
-            
-            db: Session = next(databaseMysql.get_db())
+            await asyncio.sleep(5)  # Intervalo de consulta de 0.5 segundos
 
-            grupo_sanguineos = grupos_sanguineos_dao.obtener_todos(db)
+            db: Session = next(databaseMysql.get_db())
+            try:
+                grupo_sanguineos = grupos_sanguineos_dao.obtener_todos(db)
+            finally:
+                db.close() 
             # Enviar los datos por WebSocket a todos los clientes conectados
             for ws in self.clients.values():
                 try:
