@@ -4,6 +4,7 @@ from src.db.db_mysql import databaseMysql
 import asyncio
 from src.routes.usuarios_routes import usuario_routes
 from src.routes.notas_medicas_routes import notasMedicasRoutes
+from contextlib import asynccontextmanager
 from src.routes.graficas_routes import graficas_routes
 from src.routes.citas_routes import citas_routes
 from src.routes.personal_medico_routes import personal_medico_routes
@@ -32,6 +33,7 @@ class HospitalBackend:
         """Inicializa la configuración de la aplicación FastAPI."""
         # Inicialización de la aplicación FastAPI
         self.app = FastAPI(
+            lifespan=self.lifespan,
             redirect_slashes=False,
             title="Backend del hospital",
             description="Backend del hospital",
@@ -141,6 +143,15 @@ class HospitalBackend:
                 except Exception as e:
                     print(f"Error enviando datos por WebSocket: {e}")
                     del self.clients[ws]  # Eliminar conexiones inactivas
+                    
+    @asynccontextmanager
+    async def lifespan(self, app: FastAPI):
+        """Maneja el ciclo de vida de la aplicación."""
+        print("Aplicación iniciada")
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.monitor_eventos_personas())   # Inicia tareas en segundo plano
+        yield  # Permite que FastAPI continúe su proceso
+        print("Aplicación cerrada") 
                 
     def broadcast(self, data: dict):
         """Envía datos a todos los clientes WebSocket conectados."""
@@ -165,7 +176,4 @@ class HospitalBackend:
 # Crear la instancia única
 app_instance = HospitalBackend()
 app = app_instance.get_app()
-
-@app.on_event("startup")
-async def iniciar_monitoreo():
-    asyncio.create_task(app_instance.monitor_eventos_personas())
+app.lifespan = app_instance.lifespan
