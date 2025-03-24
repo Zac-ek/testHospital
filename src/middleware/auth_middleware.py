@@ -16,7 +16,7 @@ class AuthMiddleware(HTTPBearer):
             cls._instance = super(AuthMiddleware, cls).__new__(cls)
         return cls._instance
 
-    async def __call__(self, request: Request, db: Session = Depends(databaseMysql.get_db)):
+    async def autenticate_login(self, request: Request, db: Session = Depends(databaseMysql.get_db)):
         """Verifica el JWT y devuelve el usuario autenticado."""
         autorizacion = await super().__call__(request)  # Obtiene el token Bearer
         datos_token = jwt_config.valida_token(autorizacion.credentials)  # Valida el token

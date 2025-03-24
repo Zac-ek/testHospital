@@ -14,6 +14,6 @@ class PersonalMedicoRoutes:
         return cls._instance
 
     def initialize_routes(self):
-        self.router.get("/doctor/{id}", response_model=PersonalMedicoResponse, dependencies=[Depends(auth_middleware)])(personalMedicoController.get_doctor)
+        self.router.get("/doctor/{id}", response_model=PersonalMedicoResponse, dependencies=[Depends(auth_middleware.autenticate_login)])(personalMedicoController.get_doctor)
 
 personal_medico_routes = PersonalMedicoRoutes().router

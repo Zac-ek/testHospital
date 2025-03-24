@@ -1,11 +1,17 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect,  HTTPException, Request
+from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect,  HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from src.db.db_mysql import databaseMysql
+import asyncio
 from src.routes.usuarios_routes import usuario_routes
 from src.routes.notas_medicas_routes import notasMedicasRoutes
+from contextlib import asynccontextmanager
 from src.routes.graficas_routes import graficas_routes
 from src.routes.citas_routes import citas_routes
 from src.routes.personal_medico_routes import personal_medico_routes
+from src.dao.grupos_sanguineos_dao import grupos_sanguineos_dao
+from src.dao.grupos_sanguineos_dao import grupos_sanguineos_dao
+from sqlalchemy.orm import Session
 from typing import List
 import jwt
 import os
@@ -28,6 +34,7 @@ class HospitalBackend:
         """Inicializa la configuración de la aplicación FastAPI."""
         # Inicialización de la aplicación FastAPI
         self.app = FastAPI(
+            lifespan=self.lifespan,
             redirect_slashes=False,
             title="Backend del hospital",
             description="Backend del hospital",
@@ -78,11 +85,8 @@ class HospitalBackend:
             """Maneja la conexión WebSocket con autenticación y manejo de clientes."""
             
             # Verificar si el token existe en los encabezados
-            print(websocket.query_params)
             token = websocket.query_params.get("token")  # Cambié de request.headers a websocket.headers
-            print(token)
             if not token:
-                print("Estoy en el if D,:")
                 await websocket.close()
                 return
 
@@ -101,7 +105,17 @@ class HospitalBackend:
                 # Asignar la conexión WebSocket al cliente
                 self.clients[client_id] = websocket
                 await websocket.accept()
-                await websocket.send_text(f"Conexión establecida con el clientId: {client_id}")
+                db: Session = next(databaseMysql.get_db())
+                try:
+                    grupo_sanguineo = grupos_sanguineos_dao.obtener_todos(db)
+                finally:
+                    db.close()  # Cerrar la sesión después de usarla
+                print(client_id)
+                print(grupo_sanguineo)
+                print
+                await websocket.send_json({"client_id": client_id})
+                if grupo_sanguineo:
+                    await websocket.send_json({"message": "Grupo Sanguíneo", "grupo_sanguineo": grupo_sanguineo})
 
                 try:
                     # Escuchar mensajes del cliente
@@ -117,6 +131,47 @@ class HospitalBackend:
                 await websocket.close(code=1008)  # Cerrar si el token expiró
             except jwt.InvalidTokenError:
                 await websocket.close(code=1008)  # Cerrar si el token no es válido
+                
+    async def monitor_eventos_personas(self):
+        """Monitorea la tabla eventos_personas y envía datos actualizados por WebSocket."""
+        while True:
+            await asyncio.sleep(5)  # Intervalo de consulta de 0.5 segundos
+
+            db: Session = next(databaseMysql.get_db())
+            try:
+                grupo_sanguineos = grupos_sanguineos_dao.obtener_todos(db)
+            finally:
+                db.close() 
+            # Enviar los datos por WebSocket a todos los clientes conectados
+            for ws in self.clients.values():
+                try:
+                    await ws.send_json({"message": "Actualización de grupos sanguíneos", "grupo_sanguineo": grupo_sanguineos})
+                except Exception as e:
+                    print(f"Error enviando datos por WebSocket: {e}")
+                    del self.clients[ws]  # Eliminar conexiones inactivas
+                    
+    @asynccontextmanager
+    async def lifespan(self, app: FastAPI):
+        """Maneja el ciclo de vida de la aplicación."""
+        print("Aplicación iniciada")
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.monitor_eventos_personas())   # Inicia tareas en segundo plano
+        yield  # Permite que FastAPI continúe su proceso
+        print("Aplicación cerrada") 
+                
+    def broadcast(self, data: dict):
+        """Envía datos a todos los clientes WebSocket conectados."""
+        disconnected_clients = []
+        for client_id, client in self.clients.items():
+            try:
+                if client.application_state == WebSocket.application_state.CONNECTED:
+                    self.app.loop.create_task(client.send_json(data))
+            except Exception:
+                disconnected_clients.append(client_id)
+
+        # Eliminar clientes desconectados
+        for client_id in disconnected_clients:
+            del self.clients[client_id]
 
 
     def get_app(self):
@@ -127,3 +182,25 @@ class HospitalBackend:
 # Crear la instancia única
 app_instance = HospitalBackend()
 app = app_instance.get_app()
+
+# MANEJADORES DE EXCEPCIONES GLOBALES
+# ----------------------------------
+# Aseguran que, ante cualquier error (incluso 401, 403, 500, etc.), 
+# la respuesta incluya encabezados CORS. 
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": f"Error interno en el servidor: {exc}"},
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+app.lifespan = app_instance.lifespan
