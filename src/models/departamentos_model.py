@@ -7,7 +7,7 @@ from src.db.db_mysql import databaseMysql
 class Departamento(databaseMysql.get_base()):
     __tablename__ = "tbc_departamentos"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(CHAR(36), primary_key=True, server_default=func.uuid())
     nombre = Column(String(100), nullable=False)
     area_medica_id = Column(CHAR(36), ForeignKey("tbc_areas_medicas.id"), nullable=True)
     departamento_superior_id = Column(CHAR(36), ForeignKey("tbc_departamentos.id"), nullable=True)

@@ -13,7 +13,7 @@ class EstatusEnum(str, enum.Enum):
 class Usuario(databaseMysql.get_base()):
     __tablename__ = "tbb_usuarios"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(CHAR(36), primary_key=True, server_default=func.uuid())
     persona_id = Column(CHAR(36), ForeignKey("tbb_personas.id"), nullable=False)
     nombre_usuario = Column(String(40), unique=True, nullable=False)
     correo_electronico = Column(String(100), unique=True, nullable=False)

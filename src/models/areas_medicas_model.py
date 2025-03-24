@@ -11,7 +11,7 @@ class EstatusEnum(str, enum.Enum):
 class AreaMedica(databaseMysql.get_base()):
     __tablename__ = "tbc_areas_medicas"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(CHAR(36), primary_key=True, server_default=func.uuid())
     nombre = Column(String(150), nullable=False)
     descripcion = Column(Text, nullable=True)
     estatus = Column(Enum(EstatusEnum), nullable=True, default=EstatusEnum.Activo)

@@ -24,7 +24,7 @@ class EstatusCitaEnum(str, enum.Enum):
 class CitaMedica(databaseMysql.get_base()):
     __tablename__ = "tbb_citas_medicas"
 
-    id = Column("ID", CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column("ID", CHAR(36), primary_key=True, server_default=func.uuid())
     personal_medico_id = Column("Personal_Medico_ID", CHAR(36), nullable=False)
     paciente_id = Column("Paciente_ID", CHAR(36), nullable=False)
     servicio_medico_id = Column("Servicio_Medico_ID", CHAR(36), nullable=False)
