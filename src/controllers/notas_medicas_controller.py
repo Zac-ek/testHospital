@@ -21,15 +21,25 @@ class NotasMedicasController:
         return JSONResponse(content={"message": "Nota creada", "id": nota_id}, status_code=201)
 
     def obtener_nota(self, nota_id: str):
-        """Obtiene una nota médica por ID."""
         nota = notasMedicasDAO.obtener_nota(nota_id)
         if not nota:
             raise HTTPException(status_code=404, detail="Nota no encontrada")
+    
+        # Convertir el _id a string
+        nota["_id"] = str(nota["_id"])
         return nota
+
 
     def obtener_todas(self):
         """Obtiene todas las notas médicas."""
-        return notasMedicasDAO.obtener_todas()
+        notas = notasMedicasDAO.obtener_todas()
+
+        # Convertir ObjectId a str en cada documento
+        for nota in notas:
+            nota["_id"] = str(nota["_id"])
+
+        return notas
+
 
     def actualizar_nota(self, nota_id: str, nuevos_datos: dict):
         """Actualiza una nota médica."""
@@ -42,6 +52,15 @@ class NotasMedicasController:
         if not notasMedicasDAO.eliminar_nota(nota_id):
             raise HTTPException(status_code=404, detail="Nota no encontrada")
         return {"message": "Nota eliminada"}
+    
+    def agrupadas_por_diagnostico(self):
+        """Obtiene las notas médicas agrupadas por diagnóstico y fecha."""
+        try:
+            agrupadas = notasMedicasDAO.agrupacion_por_diagnostico_y_fecha()
+            return agrupadas
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al obtener notas agrupadas: {str(e)}")
+
 
 # Instancia única del controlador
 notasMedicasController = NotasMedicasController()

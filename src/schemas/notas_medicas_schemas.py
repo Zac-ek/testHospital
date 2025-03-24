@@ -35,7 +35,7 @@ class NotaMedicaBase(BaseModel):
     observaciones: str = Field(...)
     fechaSeguimiento: datetime = Field(...)
 
-    @field_validator("pacienteId", "personal_medicoId", "tratamiento")
+    @field_validator("pacienteId", "personal_medicoId")
     @classmethod
     def validar_uuid(cls, value):
         try:
