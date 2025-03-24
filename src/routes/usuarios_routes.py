@@ -19,7 +19,7 @@ class UsuarioRoutes:
         """Registra los endpoints en el router usando el controlador."""
         self.router.post("/register", response_model=Usuario)(usuarios_controller.create_user)
         self.router.post("/login")(usuarios_controller.read_credentials)
-        self.router.get("/getAll", response_model=list[Usuario], dependencies=[Depends(auth_middleware)])(usuarios_controller.read_users)
+        self.router.get("/getAll", response_model=list[Usuario], dependencies=[Depends(auth_middleware.autenticate_login)])(usuarios_controller.read_users)
 
 # Se obtiene la única instancia de la clase y se usa en FastAPI
 usuario_routes = UsuarioRoutes().router
