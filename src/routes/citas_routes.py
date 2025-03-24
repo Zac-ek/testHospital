@@ -17,11 +17,11 @@ class CitasRoutes:
 
     def initialize_routes(self):
         """Registra los endpoints en el router usando el controlador."""
-        self.router.post("/register", response_model=CitaMedicaResponse, dependencies=[Depends(auth_middleware)])(citas_controller.create_cita)
-        self.router.get("/getAll", response_model=list[CitaMedicaResponse], dependencies=[Depends(auth_middleware)])(citas_controller.read_citas)
-        self.router.get("/get/{cita_id}", response_model=CitaMedicaResponse, dependencies=[Depends(auth_middleware)])(citas_controller.read_cita)
-        self.router.put("/update/{cita_id}", response_model=CitaMedicaResponse, dependencies=[Depends(auth_middleware)])(citas_controller.update_cita)
-        self.router.delete("/delete/{cita_id}", dependencies=[Depends(auth_middleware)])(citas_controller.delete_cita)
+        self.router.post("/register", response_model=CitaMedicaResponse)(citas_controller.create_cita)
+        self.router.get("/getAll", response_model=list[CitaMedicaResponse])(citas_controller.read_citas)
+        self.router.get("/get/{cita_id}", response_model=CitaMedicaResponse)(citas_controller.read_cita)
+        self.router.put("/update/{cita_id}", response_model=CitaMedicaResponse)(citas_controller.update_cita)
+        self.router.delete("/delete/{cita_id}")(citas_controller.delete_cita)
 
 # Se obtiene la instancia única para ser usada en FastAPI
 citas_routes = CitasRoutes().router

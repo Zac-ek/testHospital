@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect,  HTTPException, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect,  HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from src.db.db_mysql import databaseMysql
 from src.routes.usuarios_routes import usuario_routes
@@ -6,6 +6,7 @@ from src.routes.notas_medicas_routes import notasMedicasRoutes
 from src.routes.graficas_routes import graficas_routes
 from src.routes.citas_routes import citas_routes
 from src.routes.personal_medico_routes import personal_medico_routes
+from fastapi.responses import JSONResponse
 from typing import List
 import jwt
 import os
@@ -127,3 +128,24 @@ class HospitalBackend:
 # Crear la instancia única
 app_instance = HospitalBackend()
 app = app_instance.get_app()
+
+# MANEJADORES DE EXCEPCIONES GLOBALES
+# ----------------------------------
+# Aseguran que, ante cualquier error (incluso 401, 403, 500, etc.), 
+# la respuesta incluya encabezados CORS. 
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": f"Error interno en el servidor: {exc}"},
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
